@@ -1,111 +1,158 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    body {
-        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    .auth-wrapper {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        height: 100vh;
+    }
+
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 
     .auth-container {
-        max-width: 420px;
-        margin: 80px auto;
-        padding: 35px;
-        border-radius: 14px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        background: #ffffff;
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         text-align: center;
     }
 
-    .auth-container h3 {
+    .auth-title {
         margin-bottom: 10px;
         font-size: 24px;
-        color: #333;
+        font-weight: bold;
     }
 
-    .auth-container p {
-        margin-bottom: 20px;
+    .auth-subtitle {
+        margin-bottom: 25px;
+        color: #666;
         font-size: 14px;
-        color: #777;
     }
 
-    .auth-container input {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        font-size: 14px;
-        transition: border 0.2s, box-shadow 0.2s;
+    .form-group {
+        text-align: left;
+        margin-bottom: 15px;
     }
 
-    .auth-container input:focus {
-        border-color: #4CAF50;
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-    }
-
-    .auth-container button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 12px;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #4CAF50, #43a047);
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .auth-container button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .auth-container button:active {
-        transform: scale(0.98);
-    }
-
-    .auth-container a {
+    .form-group label {
         display: block;
-        margin-top: 18px;
-        color: #4CAF50;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
+        margin-bottom: 5px;
+        font-size: 13px;
     }
 
-    .auth-container a:hover {
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .form-group input:focus {
+        border-color: #4facfe;
+        outline: none;
+    }
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    .forgot-link {
+        text-decoration: none;
+        color: #4facfe;
+    }
+
+    .forgot-link:hover {
         text-decoration: underline;
     }
 
-    .error-message {
-        color: #c0392b;
-        background: #fdecea;
-        padding: 10px;
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        border: none;
         border-radius: 8px;
-        margin-bottom: 15px;
-        font-size: 14px;
-        border: 1px solid #f5c6cb;
+        background: #4facfe;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+        background: #3a8dde;
+    }
+
+    .auth-footer {
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .auth-footer a {
+        color: #4facfe;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
     }
 </style>
 
-<div class="auth-container">
-    <h3>Create Account</h3>
-    <p>Sign up to get started</p>
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Please login to your account</p>
 
-    {% if error %}
-        <div class="error-message">{{ error }}</div>
-    {% endif %}
+        <form method="POST" class="auth-form" novalidate>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    id="username"
+                    name="username" 
+                    type="text" 
+                    placeholder="Enter your username" 
+                    required 
+                    autocomplete="username"
+                >
+            </div>
 
-    <form method="POST" autocomplete="off">
-        <input name="username" placeholder="Username" required>
-        <input name="password" type="password" placeholder="Password" required>
-        <input name="confirm_password" type="password" placeholder="Confirm Password" required>
-        <button type="submit">Register</button>
-    </form>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    id="password"
+                    name="password" 
+                    type="password" 
+                    placeholder="Enter your password" 
+                    required 
+                    autocomplete="current-password"
+                >
+            </div>
 
-    <a href="/login">Already have an account? Login</a>
+            <div class="form-options">
+                <label>
+                    <input type="checkbox" name="remember"> Remember me
+                </label>
+                <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+
+        <p class="auth-footer">
+            Don’t have an account? 
+            <a href="/register">Register</a>
+        </p>
+    </div>
 </div>
 {% endblock %}
