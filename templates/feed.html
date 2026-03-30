@@ -3,273 +3,477 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feed</title>
-
+<title>Chatter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #0f0f13;
+  --surface: #18181f;
+  --surface2: #22222c;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c6ef9;
+  --accent2: #f97c6e;
+  --text: #e8e8f0;
+  --muted: #5a5a72;
+  --tab-h: 52px;
+  --radius: 18px;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: linear-gradient(135deg, #eef2f7, #d9e4f5);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-/* CONTAINER */
-.chat-container {
-    width: 420px;
-    height: 95vh;
-    background: #fff;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+/* subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124,110,249,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,110,249,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
 }
 
-/* HEADER */
-.chat-header {
-    padding: 16px;
-    text-align: center;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+.app {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-/* CHAT BOX */
-.chat-box {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scroll-behavior: smooth;
+/* BRAND */
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
 }
 
-/* MESSAGE ROW */
-.post {
-    display: flex;
-    gap: 10px;
-    position: relative;
-    animation: fadeIn 0.25s ease;
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  padding: 5px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
 }
 
-/* ALIGNMENT */
-.other-message { justify-content: flex-start; }
-.my-message { justify-content: flex-end; }
-.my-message .avatar { display: none; }
+.tab {
+  flex: 1;
+  height: var(--tab-h);
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  position: relative;
+}
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tab.active {
+  background: var(--surface2);
+  color: var(--text);
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.tab-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  display: none;
+}
+.tab-badge.show { display: inline; }
 
-/* AVATAR */
+/* CHAT PANEL */
+.panel {
+  display: none;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  height: 68vh;
+  overflow: hidden;
+}
+.panel.active { display: flex; }
+
+/* PANEL HEADER */
+.panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-meta { display: flex; align-items: center; gap: 10px; }
+.online-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+}
+.panel-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.panel-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.clear-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.clear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* MESSAGES */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface2) transparent;
+}
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 36px; opacity: 0.4; }
+.empty-text { font-size: 13px; opacity: 0.6; }
+
+/* MESSAGE ROWS */
+.row {
+  display: flex;
+  gap: 10px;
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.row.mine { flex-direction: row-reverse; }
+
 .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ccc, #eee);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface2);
+  align-self: flex-end;
 }
 
-/* MESSAGE WRAPPER */
-.message-wrapper { max-width: 75%; position: relative; }
+.bubble-wrap { display: flex; flex-direction: column; gap: 3px; max-width: 68%; }
+.row.mine .bubble-wrap { align-items: flex-end; }
 
-/* USERNAME */
-.username { font-size: 11px; color: #777; margin-bottom: 3px; }
-
-/* MESSAGE BUBBLE */
-.message-content {
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.4;
-    position: relative;
-    background: #f1f3f6;
+.bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  word-break: break-word;
+}
+.row.mine .bubble {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
 }
 
-/* OTHER TAIL */
-.other-message .message-content::after {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 10px;
-    width: 10px;
-    height: 10px;
-    background: #f1f3f6;
-    transform: rotate(45deg);
+.time {
+  font-size: 10px;
+  color: var(--muted);
+  padding: 0 4px;
 }
-
-/* MY MESSAGE */
-.my-message .message-content {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: white;
-}
-
-/* MY TAIL */
-.my-message .message-content::after {
-    content: '';
-    position: absolute;
-    right: -5px;
-    top: 10px;
-    width: 10px;
-    height: 10px;
-    background: #00f2fe;
-    transform: rotate(45deg);
-}
-
-/* TIMESTAMP */
-.timestamp {
-    font-size: 10px;
-    color: #999;
-    margin-top: 4px;
-}
-
-/* REACTIONS */
-.reactions { display: flex; gap: 6px; margin-top: 6px; }
-.reaction-btn {
-    font-size: 12px;
-    border: none;
-    border-radius: 12px;
-    padding: 4px 8px;
-    cursor: pointer;
-    background: #f0f0f0;
-    transition: all 0.2s ease;
-}
-.reaction-btn:hover { background: #e0e0e0; transform: scale(1.08); }
-
-/* DELETE BUTTON */
-.delete-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 12px;
-    cursor: pointer;
-    background: #ff4d4f;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 2px 6px;
-}
-.delete-btn:hover { background: #ff7875; }
-
-.my-message:hover .delete-btn { display: block; }
 
 /* INPUT AREA */
-.chat-input {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #eee;
-    background: #fafafa;
-    gap: 8px;
+.input-area {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--surface);
 }
-.chat-input input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 25px;
-    border: 1px solid #ddd;
-    outline: none;
-    transition: 0.2s;
-}
-.chat-input input:focus {
-    border-color: #4facfe;
-    box-shadow: 0 0 6px rgba(79,172,254,0.3);
-}
-.chat-input button {
-    padding: 0 18px;
-    border: none;
-    border-radius: 25px;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.chat-input button:hover { transform: scale(1.05); }
 
-/* FOOTER */
-.logout { text-align: center; font-size: 12px; padding: 8px; }
-.logout a { color: #888; text-decoration: none; }
-.logout a:hover { color: #333; }
+.msg-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 11px 18px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.msg-input::placeholder { color: var(--muted); }
+.msg-input:focus { border-color: var(--accent); }
 
-/* ANIMATION */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; height: 0; margin:0; padding:0; } }
+.send-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(124,110,249,0.4);
+}
+.send-btn:hover { transform: scale(1.08); background: #6a5ce8; }
+.send-btn:active { transform: scale(0.95); }
 
 /* MOBILE */
-@media (max-width: 480px) { .chat-container { width: 100%; height: 100vh; border-radius: 0; } }
+@media (max-width: 600px) {
+  .panel { height: 62vh; }
+  .bubble-wrap { max-width: 80%; }
+  .brand { font-size: 18px; }
+}
 </style>
 </head>
-
 <body>
-<div class="chat-container">
 
-    <div class="chat-header">
-        Welcome, {{ user.username }} 👋
-    </div>
+<div class="app">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span>Chatter</span>
+  </div>
 
-    <div class="chat-box" id="chatBox">
-        {% for post in posts %}
-<div class="post my-message" data-id="{{ post.id }}">
-    <div class="avatar"></div>
-    <div class="message-wrapper">
-        <div class="username">{{ post.user.username }}</div>
-        <div class="message-content">{{ post.content }}</div>
-        <div class="reactions">
-            <button class="reaction-btn">👍 {{ post.reactions['like'] }}</button>
-            <button class="reaction-btn">❤️ {{ post.reactions['love'] }}</button>
-            <button class="reaction-btn">😂 {{ post.reactions['laugh'] }}</button>
+  <!-- TABS -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" onclick="switchTab(0)" role="tab">
+      💬 General <span class="tab-badge" id="badge0"></span>
+    </button>
+    <button class="tab" onclick="switchTab(1)" role="tab">
+      🛠 Support <span class="tab-badge" id="badge1"></span>
+    </button>
+    <button class="tab" onclick="switchTab(2)" role="tab">
+      🎲 Random <span class="tab-badge" id="badge2"></span>
+    </button>
+  </div>
+  
+  <h1>Chat Rooms</h1>
+<form method="POST">
+    <input name="name" placeholder="New room name" required>
+    <button type="submit">Create Room</button>
+</form>
+
+<ul>
+{% for room in rooms %}
+    <li><a href="{{ url_for('room_feed', room_id=room.id) }}">{{ room.name }}</a></li>
+{% endfor %}
+</ul>
+
+  <!-- PANELS -->
+  <div class="panel active" id="panel0">
+    <div class="panel-header">
+      <div class="panel-meta">
+        <div class="online-dot"></div>
+        <div>
+          <div class="panel-name">General</div>
+          <div class="panel-sub">Open conversation</div>
         </div>
-        {% if post.timestamp %}
-        <div class="timestamp">{{ post.timestamp.strftime('%H:%M') }}</div>
-        {% endif %}
-        <!-- DELETE BUTTON VISIBLE ALWAYS -->
-        <button class="delete-btn" onclick="deleteMessage({{ post.id }}, this)">Delete</button>
+      </div>
+      <button class="clear-btn" onclick="clearChat(0)">Clear chat</button>
     </div>
-</div>
-        {% endfor %}
+    <div class="messages" id="msgs0">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <div class="empty-text">No messages yet. Say something!</div>
+      </div>
     </div>
+    <div class="input-area">
+      <input class="msg-input" id="input0" type="text" placeholder="Type a message…" autocomplete="off">
+      <button class="send-btn" onclick="send(0)">➤</button>
+    </div>
+  </div>
 
-    <form method="POST" class="chat-input">
-        <input type="text" name="content" placeholder="Type a message..." required>
-        <button type="submit">Send</button>
-    </form>
-
-    <div class="logout">
-        <a href="{{ url_for('logout') }}">Logout</a>
+  <div class="panel" id="panel1">
+    <div class="panel-header">
+      <div class="panel-meta">
+        <div class="online-dot"></div>
+        <div>
+          <div class="panel-name">Support</div>
+          <div class="panel-sub">Get help here</div>
+        </div>
+      </div>
+      <button class="clear-btn" onclick="clearChat(1)">Clear chat</button>
     </div>
+    <div class="messages" id="msgs1">
+      <div class="empty-state">
+        <div class="empty-icon">🛠</div>
+        <div class="empty-text">No messages yet. Say something!</div>
+      </div>
+    </div>
+    <div class="input-area">
+      <input class="msg-input" id="input1" type="text" placeholder="Type a message…" autocomplete="off">
+      <button class="send-btn" onclick="send(1)">➤</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel2">
+    <div class="panel-header">
+      <div class="panel-meta">
+        <div class="online-dot"></div>
+        <div>
+          <div class="panel-name">Random</div>
+          <div class="panel-sub">Anything goes</div>
+        </div>
+      </div>
+      <button class="clear-btn" onclick="clearChat(2)">Clear chat</button>
+    </div>
+    <div class="messages" id="msgs2">
+      <div class="empty-state">
+        <div class="empty-icon">🎲</div>
+        <div class="empty-text">No messages yet. Say something!</div>
+      </div>
+    </div>
+    <div class="input-area">
+      <input class="msg-input" id="input2" type="text" placeholder="Type a message…" autocomplete="off">
+      <button class="send-btn" onclick="send(2)">➤</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const chatBox = document.getElementById('chatBox');
+let current = 0;
 
-function scrollToBottom() {
-    chatBox.scrollTop = chatBox.scrollHeight;
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  document.querySelectorAll('.panel').forEach((p, idx) => p.classList.toggle('active', idx === i));
+  current = i;
+  // clear badge
+  document.getElementById('badge' + i).classList.remove('show');
 }
 
-// Scroll after load
-window.addEventListener('load', () => { scrollToBottom(); });
+function now() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
-// Scroll after sending
-document.querySelector('.chat-input').addEventListener('submit', () => {
-    setTimeout(scrollToBottom, 100);
+function send(i) {
+  const input = document.getElementById('input' + i);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const box = document.getElementById('msgs' + i);
+  const empty = box.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const row = document.createElement('div');
+  row.className = 'row mine';
+  row.innerHTML = `
+    <div class="bubble-wrap">
+      <div class="bubble">${escHtml(text)}</div>
+      <div class="time">${now()}</div>
+    </div>
+    <div class="avatar">🙂</div>
+  `;
+  box.appendChild(row);
+  input.value = '';
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearChat(i) {
+  const box = document.getElementById('msgs' + i);
+  const icons = ['💬', '🛠', '🎲'];
+  const labels = ['General', 'Support', 'Random'];
+  box.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">${icons[i]}</div>
+      <div class="empty-text">No messages yet. Say something!</div>
+    </div>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Enter key to send
+document.querySelectorAll('.msg-input').forEach((inp, i) => {
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); send(i); }
+  });
 });
-
-// Delete a message
-function deleteMessage(postId, btn) {
-    const post = btn.closest('.post');
-    post.style.transition = 'all 0.3s ease';
-    post.style.opacity = '0';
-    post.style.height = '0px';
-    post.style.margin = '0';
-    post.style.padding = '0';
-
-    // Optional: call backend API to delete
-    // fetch(`/delete/${postId}`, { method: 'DELETE' });
-
-    setTimeout(() => post.remove(), 300);
-}
-
+</script>
 </body>
 </html>
