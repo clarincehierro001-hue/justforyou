@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feed</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #eef2f7, #d9e4f5);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CONTAINER */
+.chat-container {
+    width: 420px;
+    height: 95vh;
+    background: #fff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* HEADER */
+.chat-header {
+    padding: 16px;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* CHAT BOX */
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+}
+
+/* MESSAGE ROW */
+.post {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    animation: fadeIn 0.25s ease;
+}
+
+/* ALIGNMENT */
+.other-message { justify-content: flex-start; }
+.my-message { justify-content: flex-end; }
+.my-message .avatar { display: none; }
+
+/* AVATAR */
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ccc, #eee);
+}
+
+/* MESSAGE WRAPPER */
+.message-wrapper { max-width: 75%; position: relative; }
+
+/* USERNAME */
+.username { font-size: 11px; color: #777; margin-bottom: 3px; }
+
+/* MESSAGE BUBBLE */
+.message-content {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+    background: #f1f3f6;
+}
+
+/* OTHER TAIL */
+.other-message .message-content::after {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 10px;
+    width: 10px;
+    height: 10px;
+    background: #f1f3f6;
+    transform: rotate(45deg);
+}
+
+/* MY MESSAGE */
+.my-message .message-content {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+/* MY TAIL */
+.my-message .message-content::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 10px;
+    width: 10px;
+    height: 10px;
+    background: #00f2fe;
+    transform: rotate(45deg);
+}
+
+/* TIMESTAMP */
+.timestamp {
+    font-size: 10px;
+    color: #999;
+    margin-top: 4px;
+}
+
+/* REACTIONS */
+.reactions { display: flex; gap: 6px; margin-top: 6px; }
+.reaction-btn {
+    font-size: 12px;
+    border: none;
+    border-radius: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: all 0.2s ease;
+}
+.reaction-btn:hover { background: #e0e0e0; transform: scale(1.08); }
+
+/* DELETE BUTTON */
+.delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 2px 6px;
+}
+.delete-btn:hover { background: #ff7875; }
+
+.my-message:hover .delete-btn { display: block; }
+
+/* INPUT AREA */
+.chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+    gap: 8px;
+}
+.chat-input input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: 0.2s;
+}
+.chat-input input:focus {
+    border-color: #4facfe;
+    box-shadow: 0 0 6px rgba(79,172,254,0.3);
+}
+.chat-input button {
+    padding: 0 18px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.chat-input button:hover { transform: scale(1.05); }
+
+/* FOOTER */
+.logout { text-align: center; font-size: 12px; padding: 8px; }
+.logout a { color: #888; text-decoration: none; }
+.logout a:hover { color: #333; }
+
+/* ANIMATION */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; height: 0; margin:0; padding:0; } }
+
+/* MOBILE */
+@media (max-width: 480px) { .chat-container { width: 100%; height: 100vh; border-radius: 0; } }
+</style>
+</head>
+
+<body>
+<div class="chat-container">
+
+    <div class="chat-header">
+        Welcome, {{ user.username }} 👋
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        {% for post in posts %}
+<div class="post my-message" data-id="{{ post.id }}">
+    <div class="avatar"></div>
+    <div class="message-wrapper">
+        <div class="username">{{ post.user.username }}</div>
+        <div class="message-content">{{ post.content }}</div>
+        <div class="reactions">
+            <button class="reaction-btn">👍 {{ post.reactions['like'] }}</button>
+            <button class="reaction-btn">❤️ {{ post.reactions['love'] }}</button>
+            <button class="reaction-btn">😂 {{ post.reactions['laugh'] }}</button>
+        </div>
+        {% if post.timestamp %}
+        <div class="timestamp">{{ post.timestamp.strftime('%H:%M') }}</div>
+        {% endif %}
+        <!-- DELETE BUTTON VISIBLE ALWAYS -->
+        <button class="delete-btn" onclick="deleteMessage({{ post.id }}, this)">Delete</button>
+    </div>
+</div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="chat-input">
+        <input type="text" name="content" placeholder="Type a message..." required>
+        <button type="submit">Send</button>
+    </form>
+
+    <div class="logout">
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+<script>
+const chatBox = document.getElementById('chatBox');
+
+function scrollToBottom() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Scroll after load
+window.addEventListener('load', () => { scrollToBottom(); });
+
+// Scroll after sending
+document.querySelector('.chat-input').addEventListener('submit', () => {
+    setTimeout(scrollToBottom, 100);
+});
+
+// Delete a message
+function deleteMessage(postId, btn) {
+    const post = btn.closest('.post');
+    post.style.transition = 'all 0.3s ease';
+    post.style.opacity = '0';
+    post.style.height = '0px';
+    post.style.margin = '0';
+    post.style.padding = '0';
+
+    // Optional: call backend API to delete
+    // fetch(`/delete/${postId}`, { method: 'DELETE' });
+
+    setTimeout(() => post.remove(), 300);
+}
+
+</body>
+</html>
