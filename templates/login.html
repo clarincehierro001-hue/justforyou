@@ -1,77 +1,111 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    .auth-wrapper {
+    :root {
+        --primary: #4facfe;
+        --primary-dark: #3a8dde;
+        --text: #333;
+        --muted: #777;
+    }
+
+    body {
         margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-        height: 100vh;
+        font-family: 'Inter', Arial, sans-serif;
     }
 
     .auth-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        padding: 20px;
     }
 
     .auth-container {
-        background: #fff;
-        padding: 40px;
-        border-radius: 12px;
         width: 100%;
         max-width: 400px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        padding: 40px 30px;
+        border-radius: 16px;
+
+        /* Glass effect */
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         text-align: center;
+
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .auth-title {
-        margin-bottom: 10px;
-        font-size: 24px;
-        font-weight: bold;
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--text);
     }
 
     .auth-subtitle {
+        margin-top: 5px;
         margin-bottom: 25px;
-        color: #666;
+        color: var(--muted);
         font-size: 14px;
     }
 
     .form-group {
         text-align: left;
-        margin-bottom: 15px;
+        margin-bottom: 18px;
     }
 
     .form-group label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
         font-size: 13px;
+        color: var(--text);
     }
 
     .form-group input {
         width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
         font-size: 14px;
-        transition: 0.3s;
+        transition: all 0.25s ease;
     }
 
     .form-group input:focus {
-        border-color: #4facfe;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
         outline: none;
     }
 
     .form-options {
         display: flex;
         justify-content: space-between;
-        font-size: 12px;
+        align-items: center;
+        font-size: 13px;
         margin-bottom: 20px;
+    }
+
+    .form-options input {
+        margin-right: 5px;
+        cursor: pointer;
     }
 
     .forgot-link {
         text-decoration: none;
-        color: #4facfe;
+        color: var(--primary);
+        font-weight: 500;
     }
 
     .forgot-link:hover {
@@ -82,37 +116,51 @@
         width: 100%;
         padding: 12px;
         border: none;
-        border-radius: 8px;
-        background: #4facfe;
-        color: white;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
         font-size: 15px;
+        font-weight: 500;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.25s ease;
     }
 
     .btn-primary:hover {
-        background: #3a8dde;
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
     }
 
     .auth-footer {
-        margin-top: 15px;
+        margin-top: 18px;
         font-size: 13px;
+        color: var(--muted);
     }
 
     .auth-footer a {
-        color: #4facfe;
+        color: var(--primary);
         text-decoration: none;
+        font-weight: 500;
     }
 
     .auth-footer a:hover {
         text-decoration: underline;
     }
+
+    @media (max-width: 480px) {
+        .auth-container {
+            padding: 30px 20px;
+        }
+    }
 </style>
 
 <div class="auth-wrapper">
     <div class="auth-container">
-        <h2 class="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle">Please login to your account</p>
+        <h2 class="auth-title">Welcome Back 👋</h2>
+        <p class="auth-subtitle">Login to continue</p>
 
         <form method="POST" class="auth-form" novalidate>
             <div class="form-group">
@@ -121,7 +169,7 @@
                     id="username"
                     name="username" 
                     type="text" 
-                    placeholder="Enter your username" 
+                    placeholder="Enter your username"
                     required 
                     autocomplete="username"
                 >
@@ -133,7 +181,7 @@
                     id="password"
                     name="password" 
                     type="password" 
-                    placeholder="Enter your password" 
+                    placeholder="Enter your password"
                     required 
                     autocomplete="current-password"
                 >
@@ -143,7 +191,7 @@
                 <label>
                     <input type="checkbox" name="remember"> Remember me
                 </label>
-                <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+                <a href="/forgot-password" class="forgot-link">Forgot?</a>
             </div>
 
             <button type="submit" class="btn-primary">Login</button>
@@ -151,7 +199,7 @@
 
         <p class="auth-footer">
             Don’t have an account? 
-            <a href="/register">Register</a>
+            <a href="/register">Create one</a>
         </p>
     </div>
 </div>
