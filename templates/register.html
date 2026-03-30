@@ -1,81 +1,238 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
+    :root {
+        --bg-primary: #f4f7fb;
+        --bg-card: rgba(255, 255, 255, 0.95);
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --success: #10b981;
+        --border: #dbe3ef;
+        --input-bg: #f9fbff;
+        --danger-text: #b42318;
+        --danger-bg: #fef3f2;
+        --danger-border: #fecdca;
+        --shadow: 0 20px 45px rgba(31, 41, 55, 0.12);
+        --radius-lg: 18px;
+        --radius-md: 12px;
+        --radius-sm: 10px;
+    }
+
+    .auth-page {
+        min-height: calc(100vh - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background:
+            radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
+            radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.08), transparent 30%),
+            linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%);
+    }
+
     .auth-container {
-        max-width: 400px;
-        margin: 60px auto;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        background: #fff;
+        width: 100%;
+        max-width: 430px;
+        padding: 34px 30px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+    }
+
+    .auth-header {
         text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .auth-badge {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 14px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        background: linear-gradient(135deg, #2563eb, #10b981);
+        color: white;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
     }
 
     .auth-container h3 {
-        margin-bottom: 20px;
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .auth-subtitle {
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .error-message {
+        color: var(--danger-text);
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 18px;
+        font-size: 14px;
+        text-align: left;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group {
+        text-align: left;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
     }
 
     .auth-container input {
         width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        padding: 13px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
         font-size: 14px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        outline: none;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    .auth-container input::placeholder {
+        color: #9ca3af;
+    }
+
+    .auth-container input:focus {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .password-hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
     }
 
     .auth-container button {
         width: 100%;
-        padding: 10px;
-        margin-top: 10px;
+        padding: 13px 16px;
+        margin-top: 4px;
         border: none;
-        border-radius: 8px;
-        background: #4CAF50;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
         color: white;
-        font-size: 16px;
+        font-size: 15px;
+        font-weight: 600;
         cursor: pointer;
-        transition: 0.3s;
+        transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
     }
 
     .auth-container button:hover {
-        background: #45a049;
+        transform: translateY(-1px);
+        box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
+    }
+
+    .auth-container button:active {
+        transform: translateY(0);
+    }
+
+    .auth-footer {
+        margin-top: 22px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--text-secondary);
     }
 
     .auth-container a {
-        display: block;
-        margin-top: 15px;
-        color: #007BFF;
+        color: var(--accent);
         text-decoration: none;
-        font-size: 14px;
+        font-weight: 600;
+        transition: color 0.2s ease;
     }
 
     .auth-container a:hover {
+        color: var(--accent-hover);
         text-decoration: underline;
     }
 
-    .error-message {
-        color: #e74c3c;
-        background: #fdecea;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 15px;
-        font-size: 14px;
+    @media (max-width: 480px) {
+        .auth-container {
+            padding: 26px 20px;
+            border-radius: 16px;
+        }
+
+        .auth-container h3 {
+            font-size: 24px;
+        }
     }
 </style>
 
-<div class="auth-container">
-    <h3>Create Account</h3>
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-badge">👤</div>
+            <h3>Create Account</h3>
+            <p class="auth-subtitle">Join us today and create your account to get started.</p>
+        </div>
 
-    {% if error %}
-        <div class="error-message">{{ error }}</div>
-    {% endif %}
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
 
-    <form method="POST">
-        <input name="username" placeholder="Username" required>
-        <input name="password" type="password" placeholder="Password" required>
-        <button type="submit">Register</button>
-    </form>
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                >
+            </div>
 
-    <a href="/login">Already have an account? Login</a>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Create a strong password"
+                    autocomplete="new-password"
+                    required
+                >
+                <div class="password-hint">Use a strong password with letters, numbers, and symbols.</div>
+            </div>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login</a>
+        </div>
+    </div>
 </div>
 {% endblock %}
